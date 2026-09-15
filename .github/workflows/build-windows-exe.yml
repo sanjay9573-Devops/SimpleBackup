@@ -1,0 +1,45 @@
+name: Build Windows exe
+
+# Builds Simple Backup.exe on a real Windows runner in the cloud and
+# uploads it as a downloadable artifact -- no local Windows machine needed.
+#
+# How to use:
+#   1. Create a new GitHub repo and push this whole backup_app folder to it,
+#      keeping this file at: .github/workflows/build-windows-exe.yml
+#   2. Go to the repo's "Actions" tab on GitHub.
+#   3. Select "Build Windows exe" on the left, click "Run workflow".
+#   4. Wait ~1-2 minutes for it to finish (green checkmark).
+#   5. Click into the finished run, scroll to "Artifacts", and download
+#      "SimpleBackup-windows-exe". It's a zip containing Simple Backup.exe.
+#
+# It also runs automatically on every push to the main branch, so future
+# updates get rebuilt for you.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build exe
+        run: pyinstaller --onefile --windowed --name "Simple Backup" main.py
+
+      - name: Upload exe as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleBackup-windows-exe
+          path: dist/Simple Backup.exe
